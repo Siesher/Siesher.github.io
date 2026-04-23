@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Siesher · Гримуар</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=Tangerine:wght@400;700&family=Caveat:wght@400;700&family=UnifrakturCook:wght@700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  html, body { margin: 0; padding: 0; background: #05041A; color: #F5F3FF; font-family: 'Cormorant Garamond', serif; }
+  * { box-sizing: border-box; }
+  a { color: inherit; }
+  button { font: inherit; }
+
+  @keyframes barFill { from { width: 0 !important; } }
+  @keyframes mcSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes spellRing {
+    0%   { transform: scale(0); opacity: 1; }
+    100% { transform: scale(2.4); opacity: 0; }
+  }
+  @keyframes spellStar {
+    0%   { transform: scale(0) rotate(0); opacity: 1; }
+    100% { transform: scale(1.6) rotate(140deg); opacity: 0; }
+  }
+  @keyframes spellSpark {
+    0%   { transform: translate(0,0); opacity: 1; }
+    100% { transform: translate(var(--sx), var(--sy)); opacity: 0; }
+  }
+
+  .tweaks-panel {
+    position: fixed; right: 18px; bottom: 18px; z-index: 10000;
+    width: 300px;
+    background: rgba(15, 10, 40, 0.85);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(196,181,253,0.35);
+    border-radius: 10px; padding: 16px;
+    color: #F5F3FF;
+    font-family: 'Fira Code', monospace; font-size: 11px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    display: none;
+  }
+  .tweaks-panel.on { display: block; }
+  .tweaks-panel h3 {
+    margin: 0 0 12px 0; font-family: 'Cinzel', serif;
+    font-size: 14px; letter-spacing: 3px; color: #C4B5FD;
+  }
+  .tweak-row { margin-bottom: 12px; }
+  .tweak-row label { display: block; letter-spacing: 2px; color: #A5B4FC; margin-bottom: 6px; font-size: 10px; }
+  .tweak-row .opts { display: flex; gap: 4px; flex-wrap: wrap; }
+  .tweak-row .opts button {
+    flex: 1; min-width: 0;
+    background: transparent; color: #E0E7FF;
+    border: 1px solid rgba(196,181,253,0.3);
+    padding: 6px 8px; border-radius: 4px;
+    cursor: pointer; font-size: 10px; letter-spacing: 1px;
+    transition: all .2s;
+  }
+  .tweak-row .opts button.active {
+    background: rgba(196,181,253,0.2);
+    border-color: #C4B5FD; color: #C4B5FD;
+  }
+  .tweak-row input[type=range] { width: 100%; accent-color: #C4B5FD; }
+
+  .variant-switch {
+    position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 10000;
+    display: flex; gap: 4px;
+    background: rgba(15,10,40,0.8);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(196,181,253,0.3);
+    border-radius: 999px; padding: 4px;
+  }
+  .variant-switch button {
+    background: transparent; color: #A5B4FC;
+    border: none; padding: 8px 18px;
+    font-family: 'Cinzel', serif;
+    font-size: 11px; letter-spacing: 2px;
+    cursor: pointer; border-radius: 999px;
+    transition: all .3s;
+  }
+  .variant-switch button.active {
+    background: rgba(196,181,253,0.18);
+    color: #F5F3FF;
+    box-shadow: 0 0 20px rgba(196,181,253,0.3);
+  }
+
+  .lang-switch {
+    position: fixed; top: 14px; right: 16px; z-index: 10000;
+    display: flex; gap: 4px;
+    background: rgba(15,10,40,0.8);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(196,181,253,0.3);
+    border-radius: 999px; padding: 3px;
+  }
+  .lang-switch button {
+    background: transparent; color: #A5B4FC;
+    border: none; padding: 6px 12px;
+    font-family: 'Fira Code', monospace;
+    font-size: 11px; letter-spacing: 2px;
+    cursor: pointer; border-radius: 999px;
+    transition: all .3s;
+  }
+  .lang-switch button.active {
+    background: rgba(196,181,253,0.2); color: #F5F3FF;
+  }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.development.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.development.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.29.0/babel.min.js"></script>
+
+  <script type="text/babel" src="data.jsx"></script>
+  <script type="text/babel" src="shared.jsx"></script>
+  <script type="text/babel" src="grimoire.jsx"></script>
+  <script type="text/babel" src="starry-card.jsx"></script>
+  <script type="text/babel" src="scroll-landing.jsx"></script>
+
+  <script type="text/babel">
+    const TWEAKS = /*EDITMODE-BEGIN*/{
+      "variant": "scroll",
+      "theme": "night",
+      "fontMode": "modern",
+      "particleDensity": 1,
+      "language": "ru"
+    }/*EDITMODE-END*/;
+
+    const LS_KEY = "siesher_card_state";
+    function loadState() {
+      try {
+        const s = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
+        return { ...TWEAKS, ...s };
+      } catch { return { ...TWEAKS }; }
+    }
+
+    const { useState, useEffect } = React;
+
+    function App() {
+      const [state, setState] = useState(loadState);
+      const [editMode, setEditMode] = useState(false);
+
+      useEffect(() => {
+        localStorage.setItem(LS_KEY, JSON.stringify(state));
+      }, [state]);
+
+      // Edit-mode protocol
+      useEffect(() => {
+        function onMsg(e) {
+          const d = e.data || {};
+          if (d.type === "__activate_edit_mode") setEditMode(true);
+          else if (d.type === "__deactivate_edit_mode") setEditMode(false);
+        }
+        window.addEventListener("message", onMsg);
+        window.parent.postMessage({ type: "__edit_mode_available" }, "*");
+        return () => window.removeEventListener("message", onMsg);
+      }, []);
+
+      const set = (k, v) => {
+        setState(s => ({ ...s, [k]: v }));
+        window.parent.postMessage({ type: "__edit_mode_set_keys", edits: { [k]: v } }, "*");
+      };
+
+      const { variant, theme, fontMode, particleDensity, language } = state;
+
+      const View = variant === "card" ? window.StarryCard
+        : variant === "scroll" ? window.ScrollLanding
+        : window.Grimoire;
+
+      return (
+        <React.Fragment>
+          <View lang={language} theme={theme} fontMode={fontMode} particleDensity={particleDensity} />
+
+          <window.SpellCaster color="#C4B5FD" />
+
+          <div className="variant-switch">
+            <button className={variant === "grimoire" ? "active" : ""} onClick={() => set("variant", "grimoire")}>
+              ✦ {language === "ru" ? "ГРИМУАР" : "GRIMOIRE"}
+            </button>
+            <button className={variant === "card" ? "active" : ""} onClick={() => set("variant", "card")}>
+              ✦ {language === "ru" ? "КАРТА" : "CARD"}
+            </button>
+            <button className={variant === "scroll" ? "active" : ""} onClick={() => set("variant", "scroll")}>
+              ✦ {language === "ru" ? "СВИТОК" : "SCROLL"}
+            </button>
+          </div>
+
+          <div className="lang-switch">
+            <button className={language === "ru" ? "active" : ""} onClick={() => set("language", "ru")}>RU</button>
+            <button className={language === "en" ? "active" : ""} onClick={() => set("language", "en")}>EN</button>
+          </div>
+
+          <div className={`tweaks-panel ${editMode ? "on" : ""}`} data-no-spell>
+            <h3>✦ TWEAKS ✦</h3>
+
+            <div className="tweak-row">
+              <label>{language === "ru" ? "РЕЖИМ / ТЕМА" : "THEME"}</label>
+              <div className="opts">
+                <button className={theme === "night" ? "active" : ""} onClick={() => set("theme", "night")}>
+                  {language === "ru" ? "НОЧЬ" : "NIGHT"}
+                </button>
+                <button className={theme === "day" ? "active" : ""} onClick={() => set("theme", "day")}>
+                  {language === "ru" ? "ДЕНЬ" : "DAY"}
+                </button>
+              </div>
+            </div>
+
+            <div className="tweak-row">
+              <label>{language === "ru" ? "ШРИФТ" : "FONT"}</label>
+              <div className="opts">
+                <button className={fontMode === "modern" ? "active" : ""} onClick={() => set("fontMode", "modern")}>
+                  {language === "ru" ? "СОВР." : "MODERN"}
+                </button>
+                <button className={fontMode === "handwritten" ? "active" : ""} onClick={() => set("fontMode", "handwritten")}>
+                  {language === "ru" ? "РУКОП." : "HANDW"}
+                </button>
+                <button className={fontMode === "gothic" ? "active" : ""} onClick={() => set("fontMode", "gothic")}>
+                  {language === "ru" ? "ГОТИКА" : "GOTHIC"}
+                </button>
+              </div>
+            </div>
+
+            <div className="tweak-row">
+              <label>{language === "ru" ? "ЧАСТИЦЫ" : "PARTICLES"} · {particleDensity.toFixed(1)}×</label>
+              <input type="range" min="0" max="3" step="0.1" value={particleDensity}
+                onChange={e => set("particleDensity", parseFloat(e.target.value))} />
+            </div>
+
+            <div className="tweak-row">
+              <label>{language === "ru" ? "ФОРМАТ" : "FORMAT"}</label>
+              <div className="opts">
+                <button className={variant === "grimoire" ? "active" : ""} onClick={() => set("variant", "grimoire")}>GRIMOIRE</button>
+                <button className={variant === "card" ? "active" : ""} onClick={() => set("variant", "card")}>CARD</button>
+                <button className={variant === "scroll" ? "active" : ""} onClick={() => set("variant", "scroll")}>SCROLL</button>
+              </div>
+            </div>
+
+            <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(196,181,253,0.2)", color: "#A5B4FC", opacity: 0.7, fontSize: 10, letterSpacing: 1 }}>
+              {language === "ru"
+                ? "Клик по пустому месту — заклинание ✨"
+                : "Click empty space to cast a spell ✨"}
+            </div>
+          </div>
+        </React.Fragment>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
+
